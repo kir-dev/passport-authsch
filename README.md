@@ -172,7 +172,7 @@ When registering your AuthSch client, for the redirectUrl you should provide `<y
 
 ### Final steps
 
-And with that, your done! To enforce authentication on endpoints or controllers, add the `@UseGuards(AuthGuard('jwt))` decorator to the method or class. (If you're using Swagger, also add the `@ApiBearerAuth()`). If that endpoint is called without a JWT in the Authorization header, a 401 Unauthorized error will be returned. You can extract the user data with the `@CurrentUser()` decorator in the controller method parameters.
+And with that, you're done! To enforce authentication on endpoints or controllers, add the `@UseGuards(AuthGuard('jwt))` decorator to the method or class. (If you're using Swagger, also add the `@ApiBearerAuth()`). If that endpoint is called without a JWT in the Authorization header, a 401 Unauthorized error will be returned. You can extract the user data with the `@CurrentUser()` decorator in the controller method parameters.
 
 #### Example endpoint using the JWT authentication
 
