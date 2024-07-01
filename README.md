@@ -1,6 +1,6 @@
 # passport-authsch
 
-This package is a strategy for [passport.js](https://passportjs.org/) and [AuthSCH](https://auth.sch.bme.hu/), and a few other things that we use in our NestJs application related to authentication.
+This package is a strategy for [passport.js](https://passportjs.org/) and [AuthSCH](https://auth.sch.bme.hu/), and a few other things that we use in our NestJs applications related to authentication.
 
 ## Usage
 
@@ -52,9 +52,9 @@ export class AuthSchStrategy extends PassportStrategy(Strategy) {
 }
 ```
 
-The constructor takes the AuthService as a parameter, so Nest's Dependency Injection will give us an instance. To use AuthSCH, we must provide a clientId, clientSecret and a list of scopes to the base class. You can generate an id and secret at [AuthSCH's website](https://auth.sch.bme.hu/console/create). The description of the scopes can be read in the passage about [AuthSchScopes](#AuthSchScope-and-AuthSchProfile).
+To use AuthSCH, we must provide a clientId, clientSecret and a list of scopes to the base class. You can generate an id and secret at [AuthSCH's website](https://auth.sch.bme.hu/console/create). The description of the scopes can be read in the passage about [AuthSchScopes](#AuthSchScope-and-AuthSchProfile).
 
-The validate method will be called after the user decides to share their data and that data is retrieved from AuthSCH. The data is parsed by this library and passed as a parameter in the form of a `AuthSchProfile object`, read more in [the same passage](#AuthSchScope-and-AuthSchProfile). The validate method can be used for validating the user's data. You can create custom logic here, we usually check if they're already in our database, and if not, we insert them. If you return undefined or null from this method, the authentication will fail. If you return anything else, that value will be availabe on req.user on every subsequent request.
+The validate method will be called after the user decides to share their data and that data is retrieved from AuthSCH. The data is parsed by this library and passed as a parameter in the form of a `AuthSchProfile` object, read more in [the same passage](#AuthSchScope-and-AuthSchProfile). The validate method can be used for validating the user's data. You can create custom logic here, we usually check if they're already in our database, and if not, we insert them. If you return undefined or null from this method, the authentication will fail. If you return anything else, that value will be availabe on req.user on every subsequent request where the `@UseGuards(AuthGuard('authsch'))` decorator is present.
 
 ### Create a JWT strategy
 
@@ -120,7 +120,7 @@ export class AuthService {
   login(user: User): string {
     return this.jwtService.sign(user, {
       secret: '<your secret>',
-      expiresIn: '2 days',
+      expiresIn: '7 days',
     });
   }
 }
@@ -173,6 +173,20 @@ When registering your AuthSch client, for the redirectUrl you should provide `<y
 ### Final steps
 
 And with that, your done! To enforce authentication on endpoints or controllers, add the `@UseGuards(AuthGuard('jwt))` decorator to the method or class. (If you're using Swagger, also add the `@ApiBearerAuth()`). If that endpoint is called without a JWT in the Authorization header, a 401 Unauthorized error will be returned. You can extract the user data with the `@CurrentUser()` decorator in the controller method parameters.
+
+#### Example endpoint using the JWT authentication
+
+```typescript
+@UseGuards(AuthGuard('jwt'))
+@ApiBearerAuth()
+@Get(':id')
+async findOne(
+  @Param('id', ParseIntPipe) id: number,
+  @CurrentUser() user: UserEntity,
+): Promise<...> {
+  ...
+}
+```
 
 ## Documentation
 
