@@ -30,8 +30,7 @@ export class Strategy extends PassportStrategy {
     this.callbackEndpointSuffix = params.callbackEndpoint || 'callback';
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async validate(_userProfile: AuthSchProfile): Promise<boolean> {
+  async validate(_userProfile: AuthSchProfile): Promise<any> {
     throw new Error('Not implemented');
   }
 
@@ -107,15 +106,21 @@ export class Strategy extends PassportStrategy {
         start: gm.start,
         end: gm.end,
       })),
+      entrants: profileData.entrants?.map((e) => ({
+        pekGroupId: e.groupId,
+        groupName: e.groupName,
+        entrantType: e.entrantType,
+      })),
       bmeStatus: profileData.bmeunitscope,
       address: profileData.permanentaddress,
       attendedCourseCodes: profileData.niifEduPersonAttendedCourse?.split(';'),
       mobile: profileData.mobile,
+      neptun: profileData.niifPersonOrgID,
     };
-    const validated = await this.validate(parsedProfileData);
-    if (!validated) {
+    const validatedUser = await this.validate(parsedProfileData);
+    if (!validatedUser) {
       return this.fail(401);
     }
-    this.success(parsedProfileData);
+    this.success(validatedUser);
   }
 }

@@ -56,6 +56,7 @@ export type RawAuthSchProfile = {
   sn: string;
   givenName: string;
   mail: string;
+  niifPersonOrgID: string;
   linkedAccounts: {
     bme: string;
     schacc: string;
@@ -69,9 +70,14 @@ export type RawAuthSchProfile = {
     virUid: number;
   };
   eduPersonEntitlement: RawGroupMembership[];
+  entrants: {
+    groupId: number;
+    groupName: string;
+    entrantType: 'AB' | 'KB';
+  }[];
   bmeunitscope: BmeUnitScope[];
   permanentaddress: string;
-  niifEduPersonAttendedCourse: string; // BME course codes joined by ;
+  niifEduPersonAttendedCourse: string; // BME course codes separated by ;
   mobile: string;
   neptun: string;
 };
@@ -95,8 +101,14 @@ export type AuthSchProfile = {
     start: string;
     end?: string;
   }[];
+  entrants: {
+    pekGroupId: number;
+    groupName: string;
+    entrantType: 'AB' | 'KB';
+  }[];
   bmeStatus: BmeUnitScope[];
   address: string;
   attendedCourseCodes: string[];
   mobile: string;
+  neptun: string;
 };

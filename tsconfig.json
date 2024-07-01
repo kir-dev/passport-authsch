@@ -1,21 +1,19 @@
 {
   "include": ["./src/**/*.ts"],
   "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "outDir": "./build",
     "lib": ["es2023"],
-    "module": "nodenext",
-    "target": "es2022",
-    "moduleResolution": "nodenext",
-
+    "moduleResolution": "Node",
     "rootDir": "./src",
-    "outDir": "./build/esm",
-
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "sourceMap": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "resolveJsonModule": true
-  }
+    "declaration": true
+  },
+  "exclude": ["node_modules"]
 }
