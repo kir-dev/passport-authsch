@@ -11,7 +11,7 @@ To set up JWT authtentication with AuthSCH in a Nest.js application, follow thes
 Install the following packages:
 
 ```bash
-yarn add passport @nestjs/passport @kirdev/passport-authsch passport-jwt @nestjs/jwt
+yarn add passport @nestjs/passport @kir-dev/passport-authsch passport-jwt @nestjs/jwt
 ```
 
 ### Create auth resource
