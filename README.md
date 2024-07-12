@@ -188,6 +188,8 @@ async findOne(
 }
 ```
 
+[Example PR that implements authentication with this library in a NestJS app](https://github.com/kir-dev/BeAlcoholic/pull/27)
+
 ## Documentation
 
 ### AuthSchScope and AuthSchProfile
