@@ -34,7 +34,6 @@ Create a file called `authsch.strategy.ts` in the `auth` directory.
 import { AuthSchProfile, AuthSchScope, Strategy } from '@kir-dev/passport-authsch';
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class AuthSchStrategy extends PassportStrategy(Strategy) {
