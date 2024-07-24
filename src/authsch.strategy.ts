@@ -2,13 +2,8 @@ import axios, { AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { Strategy as PassportStrategy } from 'passport-strategy';
 
-import {
-  AuthSchProfile,
-  AuthSchTokenResponse,
-  RawAuthSchProfile,
-  RawGroupMembership,
-  StrategyParams,
-} from './types.js';
+import { AuthSchProfile, AuthSchTokenResponse, RawAuthSchProfile, StrategyParams } from './types.js';
+import { parseAuthSchProfile } from './util.js';
 
 export class Strategy extends PassportStrategy {
   private readonly tokenEndpoint = 'https://auth.sch.bme.hu/oauth2/token';
@@ -87,37 +82,7 @@ export class Strategy extends PassportStrategy {
       console.error('Fetching user profile from AuthSch failed: ', tokenResponse.status);
       return this.fail(401);
     }
-    const parsedProfileData: AuthSchProfile = {
-      authSchId: profileData.internal_id,
-      displayName: profileData.displayName,
-      lastName: profileData.sn,
-      firstName: profileData.givenName,
-      email: profileData.mail,
-      linkedAccounts: {
-        bme: profileData.linkedAccounts?.bme,
-        schacc: profileData.linkedAccounts?.schacc,
-        pekUserName: profileData.linkedAccounts?.virUid,
-      },
-      groupMemberships: profileData.eduPersonEntitlement?.map((gm: RawGroupMembership) => ({
-        pekGroupId: gm.id,
-        groupName: gm.name,
-        status: gm.status,
-        posts: gm.title,
-        start: gm.start,
-        end: gm.end,
-      })),
-      entrants: profileData.entrants?.map((e) => ({
-        pekGroupId: e.groupId,
-        groupName: e.groupName,
-        entrantType: e.entrantType,
-      })),
-      bmeStatus: profileData.bmeunitscope,
-      address: profileData.permanentaddress,
-      attendedCourseCodes: profileData.niifEduPersonAttendedCourse?.split(';'),
-      mobile: profileData.mobile,
-      neptun: profileData.niifPersonOrgID,
-    };
-    const validatedUser = await this.validate(parsedProfileData);
+    const validatedUser = await this.validate(parseAuthSchProfile(profileData));
     if (!validatedUser) {
       return this.fail(401);
     }
