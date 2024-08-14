@@ -11,7 +11,7 @@ export const parseAuthSchProfile = (profileData: RawAuthSchProfile): AuthSchProf
   bme: {
     eduId: profileData['bme.hu:eduPersonPrincipalName'],
     neptun: profileData['bme.hu:niifPersonOrgID'],
-    bmeStatus: profileData['meta.bme.hu:unitScope'].split(' ') as BmeUnitScope[],
+    bmeStatus: (profileData['meta.bme.hu:unitScope']?.split(' ') ?? []) as BmeUnitScope[],
     attendedCourses: profileData['bme.hu:niifEduPersonAttendedCourse/v1'],
     updatedAt: profileData['meta.bme.hu:updated_at'],
   },
@@ -23,13 +23,13 @@ export const parseAuthSchProfile = (profileData: RawAuthSchProfile): AuthSchProf
   },
   pek: {
     pekId: profileData['pek.sch.bme.hu:uid'],
-    executiveAt: profileData['pek.sch.bme.hu:executiveAt/v1'].map((m) => ({ groupId: m.id, groupName: m.name })),
-    activeMemberAt: profileData['pek.sch.bme.hu:activeMemberships/v1'].map((m) => ({
+    executiveAt: profileData['pek.sch.bme.hu:executiveAt/v1']?.map((m) => ({ groupId: m.id, groupName: m.name })),
+    activeMemberAt: profileData['pek.sch.bme.hu:activeMemberships/v1']?.map((m) => ({
       groupId: m.id,
       groupName: m.name,
       titles: m.title,
     })),
-    alumniMemberAt: profileData['pek.sch.bme.hu:alumniMemberships/v1'].map((m) => ({
+    alumniMemberAt: profileData['pek.sch.bme.hu:alumniMemberships/v1']?.map((m) => ({
       groupId: m.id,
       groupName: m.name,
       start: m.start,
