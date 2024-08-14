@@ -42,7 +42,7 @@ export const parseAuthSchProfile = (profileData: RawAuthSchProfile): AuthSchProf
     groupName: e.groupName,
     entrantType: e.entrantType,
   })),
-  address: profileData.address.formatted,
+  address: profileData.address?.formatted,
   phone: profileData.phone_number,
   phoneVerified: profileData.phone_number_verified,
 });
