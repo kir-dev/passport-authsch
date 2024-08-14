@@ -7,7 +7,7 @@ import { parseAuthSchProfile } from './util.js';
 
 export class Strategy extends PassportStrategy {
   private readonly tokenEndpoint = 'https://auth.sch.bme.hu/oauth2/token';
-  private readonly profileEndpoint = 'https://auth.sch.bme.hu/api/profile';
+  private readonly profileEndpoint = 'https://auth.sch.bme.hu/oidc/userinfo';
   private readonly authEndpoint = 'https://auth.sch.bme.hu/site/login';
   private clientId: string;
   private clientSecret: string;
@@ -20,7 +20,7 @@ export class Strategy extends PassportStrategy {
     super();
     this.clientId = params.clientId;
     this.clientSecret = params.clientSecret;
-    this.scopes = (params.scopes ?? []).join('+');
+    this.scopes = ['openid', ...(params.scopes ?? [])].join('+');
     this.loginEndpointSuffix = params.loginEndpoint || 'login';
     this.callbackEndpointSuffix = params.callbackEndpoint || 'callback';
   }
@@ -52,6 +52,11 @@ export class Strategy extends PassportStrategy {
 
   async callback(req: Request) {
     const authorizationCode = req.query.code;
+    const error = req.query.error;
+    if (error) {
+      console.error(req.query.error_description ?? error);
+      return this.fail(401);
+    }
     if (!authorizationCode) {
       console.error('No authorization code received from AuthSch!');
       return this.fail(401);
@@ -74,9 +79,9 @@ export class Strategy extends PassportStrategy {
     }
 
     const profileData = (
-      await axios.get<RawAuthSchProfile>(
-        `${this.profileEndpoint}/${this.scopes}?access_token=${tokenResponse.data.access_token}`
-      )
+      await axios.get<RawAuthSchProfile>(this.profileEndpoint, {
+        headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
+      })
     ).data;
     if (!profileData) {
       console.error('Fetching user profile from AuthSch failed: ', tokenResponse.status);

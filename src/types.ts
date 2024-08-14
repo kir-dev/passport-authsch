@@ -15,19 +15,20 @@ export type StrategyParams = {
 };
 
 export enum AuthSchScope {
-  BASIC = 'basic',
-  DISPLAY_NAME = 'displayName',
-  LAST_NAME = 'sn',
-  FIRST_NAME = 'givenName',
-  EMAIL = 'mail',
-  NEPTUN = 'niifPersonOrgID', // Requires special request, the client must be created by KSZK!
-  LINKED_ACCOUNTS = 'linkedAccounts',
-  GROUP_MEMBERSHIPS = 'eduPersonEntitlement',
-  MOBILE = 'mobile',
-  ATTENDED_COURSES = 'niifEduPersonAttendedCourse',
-  BME_STATUS = 'bmeunitscope',
-  ADDRESS = 'permanentaddress',
-  ENTRANTS = 'entrants',
+  // OPENID = 'openid', This is required with AuthSCH v2, so the lib will provide it by default
+  PROFILE = 'profile',
+  EMAIL = 'email',
+  PHONE = 'phone',
+  ADDRESS = 'address',
+  // OFFLINE_ACCESS = 'offline_access' the lib currently doesn't support refresh tokens, so it's useless
+  ROLES = 'roles',
+  EDU_ID = 'bme.hu:eduPersonPrincipalName',
+  NEPTUN = 'bme.hu:niifPersonOrgID', // only with special request!
+  ATTENDED_COURSES = 'bme.hu:niifPersonAttendedCourse', // only with special request!
+  BME_STATUS = 'meta.bme.hu:unitScope',
+  SCH_GROUPS = 'directory.sch.bme.hu:groups',
+  SCHACC_ID = 'directory.sch.bme.hu:sAMAccountName',
+  PEK_PROFILE = 'pek.sch.bme.hu:profile',
 }
 
 export enum BmeUnitScope {
@@ -51,64 +52,74 @@ export type RawGroupMembership = {
 };
 
 export type RawAuthSchProfile = {
-  internal_id: string;
-  displayName: string;
-  sn: string;
-  givenName: string;
-  mail: string;
-  niifPersonOrgID: string;
-  linkedAccounts: {
-    bme: string;
-    schacc: string;
-    vir: number;
-    virUid: string;
+  name: string;
+  family_name: string;
+  given_name: string;
+  birthdate: string;
+  address: {
+    formatted: string;
   };
-  lastSync: {
-    bme: number;
-    schacc: number;
-    vir: number;
-    virUid: number;
+  'bme.hu:niifPersonOrgID': string;
+  'bme.hu:eduPersonPrincipalName': string;
+  'bme.hu:niifEduPersonAttendedCourse/v1': string[];
+  'meta.bme.hu:unitScope': string;
+  'meta.bme.hu:updated_at': number;
+  email: string;
+  email_verified: boolean;
+  'directory.sch.bme.hu:groups/v1': string[];
+  'directory.sch.bme.hu:sAMAccountName': string;
+  'meta.directory.sch.bme.hu:updated_at': number;
+  'pek.sch.bme.hu:entrants/v1': {
+    groupId: number;
+    groupName: string;
+    entrantType: 'AB' | 'KB';
+  }[];
+  'pek.sch.bme.hu:executiveAt/v1': { id: number; name: string }[];
+  'pek.sch.bme.hu:activeMemberships/v1': { id: number; name: string; title: string[] }[];
+  'pek.sch.bme.hu:alumniMemberships/v1': { id: number; name: string; start: string; end: string }[];
+  'pek.sch.bme.hu:uid': string;
+  'meta.pek.sch.bme.hu:updated_at': number;
+  phone_number: string;
+  phone_number_verified: boolean;
+  roles: string[];
+  sub: string;
+  updated_at: number;
+};
+
+export type AuthSchProfile = {
+  authSchId: string;
+  fullName: string;
+  lastName: string;
+  firstName: string;
+  birthdate: string;
+  email: string;
+  emailVerfied: boolean;
+  address: string;
+  phone: string;
+  phoneVerified: boolean;
+  bme: {
+    eduId: string;
+    attendedCourses: string[];
+    bmeStatus: BmeUnitScope[];
+    neptun: string;
+    updatedAt: number;
   };
-  eduPersonEntitlement: RawGroupMembership[];
+  schAcc: {
+    schAccUsername: string;
+    groups: string[];
+    roles: string[];
+    updatedAt: number;
+  };
+  pek: {
+    executiveAt: { groupId: number; groupName: string }[];
+    activeMemberAt: { groupId: number; groupName: string; titles: string[] }[];
+    alumniMemberAt: { groupId: number; groupName: string; start: string; end: string }[];
+    pekId: string;
+    updatedAt: number;
+  };
   entrants: {
     groupId: number;
     groupName: string;
     entrantType: 'AB' | 'KB';
   }[];
-  bmeunitscope: BmeUnitScope[];
-  permanentaddress: string;
-  niifEduPersonAttendedCourse: string; // BME course codes separated by ;
-  mobile: string;
-  neptun: string;
-};
-
-export type AuthSchProfile = {
-  authSchId: string;
-  displayName: string;
-  lastName: string;
-  firstName: string;
-  email: string;
-  linkedAccounts: {
-    bme: string;
-    schacc: string;
-    pekUserName: string;
-  };
-  groupMemberships: {
-    pekGroupId: number;
-    groupName: string;
-    status: 'körvezető' | 'tag' | 'öregtag';
-    posts: string[];
-    start: string;
-    end?: string;
-  }[];
-  entrants: {
-    pekGroupId: number;
-    groupName: string;
-    entrantType: 'AB' | 'KB';
-  }[];
-  bmeStatus: BmeUnitScope[];
-  address: string;
-  attendedCourseCodes: string[];
-  mobile: string;
-  neptun: string;
 };

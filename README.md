@@ -41,7 +41,7 @@ export class AuthSchStrategy extends PassportStrategy(Strategy) {
     super({
       clientId: '<your authSch clientId>',
       clientSecret: '<your authSch clientSecret',
-      scopes: [AuthSchScope.BASIC, ...],
+      scopes: [AuthSchScope.PROFILE, ...],
     });
   }
 
@@ -187,27 +187,28 @@ async findOne(
 }
 ```
 
-[Example PR that implements authentication with this library in a NestJS app](https://github.com/kir-dev/BeAlcoholic/pull/27)
+[Example PR that implements authentication with this library in a NestJS app](https://github.com/kir-dev/BeAlcoholic/pull/27) (though with v1, the enums and types changed a bit in v2)
 
 ## Documentation
 
 ### AuthSchScope and AuthSchProfile
 
-The available scopes of AuthSCH can be found [here](https://git.sch.bme.hu/kszk/authsch/-/wikis/api#jelenleg-t%C3%A1mogatott-t%C3%ADpusok-%C3%A9s-scope-k). The `AuthSchScope` is an enum that maps to these scopes. The `validate` method will get an object with type `AuthSchProfile` as parameter, which is not the same that AuthSch returns and their documentation describes. Here you can read the mapping in the following format: enum name - scope name - property in AuthSchProfile. **NOTE: Only those properties will be on the object in the validate method whose scope was provided in the constructor. The other fields will be undefined, but the type can't reflect that!**
+The available scopes of AuthSCH can be found [here](https://git.sch.bme.hu/kszk/authsch/-/wikis/api#scope-ok). The `AuthSchScope` is an enum that maps to these scopes. The `validate` method will get an object with type `AuthSchProfile` as parameter, which is not the same that AuthSch returns and their documentation describes. Here you can read the mapping in the following format: enum name - scope name - property (or properties) in AuthSchProfile. **NOTE: Only those properties will be on the object in the validate method whose scope was provided in the constructor. The other fields will be undefined, but the type can't reflect that!**
 
-- BASIC - basic - authSchId
-- DISPLAY_NAME - displayName - displayName
-- LAST_NAME - sn - lastName
-- FIRST_NAME - givenName - givenName
-- EMAIL - mail - email
-- NEPTUN - niifPersonOrgID - neptun
-- LINKED_ACCOUNTS - linkedAccounts - linkedAccounts (object with the following properties: bme, schacc, pekUserName)
-- GROUP_MEMBERSHIPS - eduPersonEntitlement - groupMemberships (object with the following properties: pekGroupId, groupName, status, posts, start, end)
-- MOBILE - mobile - mobile
-- ATTENDED_COURSES - niifEduPersonAttendedCourse - attendedCourseCodes
-- BME_STATUS - bmeunitscope - bmeStatus
-- ADDRESS - permanentaddress - address
-- ENTRANTS - entrants - entrants (object with the following properties: pekGroupId, groupName, entrantType)
+- PROFILE - profile - fullName, firstName, lastName, birthDate
+- EMAIL - email - email, emailVerified
+- PHONE - phone - phone, phoneVerified
+- ADDRESS - address - address
+- NEPTUN - bme.hu:niifPersonOrgID - neptun
+- ROLES - roles - schAcc.roles (array of string values)
+- EDU_ID - bme.hu:eduPersonPrincipalName - bme.eduId (XY@bme.hu)
+- ATTENDED_COURSES - bme.hu:niifPersonAttendedCourse - bme.attendedCourses (array of course codes)
+- BME_STATUS - meta.bme.hu:unitScope - bme.bmeStatus (array of BmeUnitScope enum values)
+- SCH_GROUPS - directory.sch.bme.hu:groups - schAcc.groups
+- SCHACC_ID - directory.sch.bme.hu:sAMAccountName - schAcc.schAccUsername
+- PEK_PROFILE - pek.sch.bme.hu:profile - pek.executiveAt, pek.activeMemberAt, pek.alumniMemberAt, pek.pekId, entrants (array of objects with the following keys: groupId, groupName, entrantType ('AB' or 'KB'))
+
+The `openid` and `offline_access` scopes are not available through this package. The `openid` scope is required for the current version of AuthSCH to work, so that scope will be added by the package by default. The `offline_scope` is needed for refresh tokens, but this library currently doesn't support that.
 
 ### CurrentUser decorator
 
