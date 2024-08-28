@@ -21,9 +21,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rimraf build && tsc -p tsconfig.json",
-    "lint": "eslint ./src --ext .ts",
-    "lint:fix": "eslint ./src --ext .ts --fix"
+    "build": "rimraf build && tsc -p tsconfig.json"
   },
   "devDependencies": {
     "@types/node": "^20.14.5",
