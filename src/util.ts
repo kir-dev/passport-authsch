@@ -11,7 +11,7 @@ export const parseAuthSchProfile = (profileData: RawAuthSchProfile): AuthSchProf
   bme: {
     eduId: profileData['bme.hu:eduPersonPrincipalName'],
     neptun: profileData['bme.hu:niifPersonOrgID'],
-    bmeStatus: (profileData['meta.bme.hu:unitScope']?.split(' ') ?? []) as BmeUnitScope[],
+    bmeStatus: (profileData['meta.bme.hu:unitScope/v1']?.split(' ') ?? []) as BmeUnitScope[],
     attendedCourses: profileData['bme.hu:niifEduPersonAttendedCourse/v1'],
     updatedAt: profileData['meta.bme.hu:updated_at'],
   },

@@ -62,7 +62,7 @@ export type RawAuthSchProfile = {
   'bme.hu:niifPersonOrgID': string;
   'bme.hu:eduPersonPrincipalName': string;
   'bme.hu:niifEduPersonAttendedCourse/v1': string[];
-  'meta.bme.hu:unitScope': string;
+  'meta.bme.hu:unitScope/v1': string;
   'meta.bme.hu:updated_at': number;
   email: string;
   email_verified: boolean;
