@@ -1,0 +1,41 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20, 22, latest]
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Check if package-lock.json is up to date
+        run: |
+          npm install --package-lock-only --dry-run
+          if [ $? -ne 0 ]; then
+            echo "Error: package-lock.json is not in sync with package.json. Please run 'npm install' locally and commit the changes."
+            exit 1
+          fi

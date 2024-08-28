@@ -25,6 +25,7 @@ export class Strategy extends PassportStrategy {
     this.callbackEndpointSuffix = params.callbackEndpoint || 'callback';
   }
 
+  // eslint-disable-next-line
   async validate(_userProfile: AuthSchProfile): Promise<any> {
     throw new Error('Not implemented');
   }
