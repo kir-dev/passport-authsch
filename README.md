@@ -191,6 +191,14 @@ async findOne(
 
 ## Documentation
 
+### Changing the AuthSch provider
+
+The default AuthSch provider is https://auth.sch.bme.hu. If you need to override it, you can do so, using the `AUTHSCH_PROVIDER` environment variable.
+
+```bash
+AUTHSCH_PROVIDER=https://authscham.vercel.app npm run start
+```
+
 ### AuthSchScope and AuthSchProfile
 
 The available scopes of AuthSCH can be found [here](https://git.sch.bme.hu/kszk/authsch/-/wikis/api#scope-ok). The `AuthSchScope` is an enum that maps to these scopes. The `validate` method will get an object with type `AuthSchProfile` as parameter, which is not the same that AuthSch returns and their documentation describes. Here you can read the mapping in the following format: enum name - scope name - property (or properties) in AuthSchProfile. **NOTE: Only those properties will be on the object in the validate method whose scope was provided in the constructor. The other fields will be undefined, but the type can't reflect that!**
