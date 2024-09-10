@@ -5,10 +5,12 @@ import { Strategy as PassportStrategy } from 'passport-strategy';
 import { AuthSchProfile, AuthSchTokenResponse, RawAuthSchProfile, StrategyParams } from './types.js';
 import { parseAuthSchProfile } from './util.js';
 
+const authSchProvider = process.env.AUTHSCH_PROVIDER || `https://auth.sch.bme.hu`;
+
 export class Strategy extends PassportStrategy {
-  private readonly tokenEndpoint = 'https://auth.sch.bme.hu/oauth2/token';
-  private readonly profileEndpoint = 'https://auth.sch.bme.hu/oidc/userinfo';
-  private readonly authEndpoint = 'https://auth.sch.bme.hu/site/login';
+  private readonly tokenEndpoint = `${authSchProvider}/oauth2/token`;
+  private readonly profileEndpoint = `${authSchProvider}/oidc/userinfo`;
+  private readonly authEndpoint = `${authSchProvider}/site/login`;
   private clientId: string;
   private clientSecret: string;
   private scopes: string;
