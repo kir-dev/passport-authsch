@@ -52,7 +52,9 @@ export class Strategy extends PassportStrategy {
   }
 
   login() {
-    return this.redirect(`${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}${this.redirectUri? `&redirect_uri=${this.redirectUri}` : "" }`);
+    return this.redirect(
+      `${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`
+    );
   }
 
   async callback(req: Request) {
