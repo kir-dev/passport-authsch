@@ -72,7 +72,7 @@ export class Strategy extends PassportStrategy {
     const base64 = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
     const tokenResponse = await axios.post<string, AxiosResponse<AuthSchTokenResponse>>(
       this.tokenEndpoint,
-      `grant_type=authorization_code&code=${authorizationCode}`,
+      `grant_type=authorization_code&code=${authorizationCode}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`,
       {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
