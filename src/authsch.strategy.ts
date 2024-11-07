@@ -16,6 +16,7 @@ export class Strategy extends PassportStrategy {
   private scopes: string;
   private loginEndpointSuffix: string;
   private callbackEndpointSuffix: string;
+  private redirectUri?: string;
   name = 'authsch';
 
   constructor(params: StrategyParams) {
@@ -25,6 +26,7 @@ export class Strategy extends PassportStrategy {
     this.scopes = ['openid', ...(params.scopes ?? [])].join('+');
     this.loginEndpointSuffix = params.loginEndpoint || 'login';
     this.callbackEndpointSuffix = params.callbackEndpoint || 'callback';
+    this.redirectUri = params.redirectUri;
   }
 
   // eslint-disable-next-line
@@ -50,7 +52,9 @@ export class Strategy extends PassportStrategy {
   }
 
   login() {
-    return this.redirect(`${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}`);
+    return this.redirect(
+      `${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`
+    );
   }
 
   async callback(req: Request) {

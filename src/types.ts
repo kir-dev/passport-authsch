@@ -12,6 +12,7 @@ export type StrategyParams = {
   scopes: AuthSchScope[];
   loginEndpoint?: string;
   callbackEndpoint?: string;
+  redirectUri?: string;
 };
 
 export enum AuthSchScope {
