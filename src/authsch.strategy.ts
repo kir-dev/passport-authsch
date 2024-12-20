@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
+import crypto from 'crypto';
 import { Request } from 'express';
+import jwt from 'jsonwebtoken';
 import { Strategy as PassportStrategy } from 'passport-strategy';
 
 import { AuthSchProfile, AuthSchTokenResponse, RawAuthSchProfile, StrategyParams } from './types.js';
@@ -13,6 +15,7 @@ export class Strategy extends PassportStrategy {
   private readonly authEndpoint = `${authSchProvider}/site/login`;
   private clientId: string;
   private clientSecret: string;
+  private stateSecret: string;
   private scopes: string;
   private loginEndpointSuffix: string;
   private callbackEndpointSuffix: string;
@@ -23,6 +26,7 @@ export class Strategy extends PassportStrategy {
     super();
     this.clientId = params.clientId;
     this.clientSecret = params.clientSecret;
+    this.stateSecret = params.stateSecret;
     this.scopes = ['openid', ...(params.scopes ?? [])].join('+');
     this.loginEndpointSuffix = params.loginEndpoint || 'login';
     this.callbackEndpointSuffix = params.callbackEndpoint || 'callback';
@@ -41,9 +45,8 @@ export class Strategy extends PassportStrategy {
     if (!this.clientSecret) {
       return this.error(new Error('No client secret provided!'));
     }
-
     if (req.path.endsWith(this.loginEndpointSuffix)) {
-      return this.login();
+      return this.login(req);
     }
     if (req.path.endsWith(this.callbackEndpointSuffix)) {
       return await this.callback(req);
@@ -51,14 +54,21 @@ export class Strategy extends PassportStrategy {
     return this.pass();
   }
 
-  login() {
+  login(req: Request) {
+    const payload = {
+      nonce: crypto.randomBytes(16).toString('hex'),
+      timestamp: Date.now(),
+      ip: req.ip,
+    };
+    const state = jwt.sign(payload, this.stateSecret, { expiresIn: '10m' });
     return this.redirect(
-      `${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`
+      `${this.authEndpoint}?response_type=code&client_id=${this.clientId}&scope=${this.scopes}&state=${state}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`
     );
   }
 
   async callback(req: Request) {
     const authorizationCode = req.query.code;
+    const state = req.query.state as string;
     const error = req.query.error;
     if (error) {
       console.error(req.query.error_description ?? error);
@@ -67,6 +77,20 @@ export class Strategy extends PassportStrategy {
     if (!authorizationCode) {
       console.error('No authorization code received from AuthSch!');
       return this.fail(401);
+    }
+    if (!state) {
+      console.error('No state received from AuthSch!');
+      return this.fail(401);
+    }
+    try {
+      const payload = jwt.verify(state, this.stateSecret) as string;
+      if (JSON.parse(payload).ip !== req.ip) {
+        console.error('CSRF validation failed!');
+        return this.fail(403);
+      }
+    } catch {
+      console.error('CSRF validation failed!');
+      return this.fail(403);
     }
 
     const base64 = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');

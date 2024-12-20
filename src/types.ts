@@ -9,6 +9,7 @@ export type AuthSchTokenResponse = {
 export type StrategyParams = {
   clientId: string;
   clientSecret: string;
+  stateSecret: string;
   scopes: AuthSchScope[];
   loginEndpoint?: string;
   callbackEndpoint?: string;
