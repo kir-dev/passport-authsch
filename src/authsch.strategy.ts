@@ -4,7 +4,7 @@ import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { Strategy as PassportStrategy } from 'passport-strategy';
 
-import { AuthSchProfile, AuthSchTokenResponse, RawAuthSchProfile, StrategyParams } from './types.js';
+import { AuthSchProfile, AuthSchTokenResponse, RawAuthSchProfile, StatePayload, StrategyParams } from './types.js';
 import { parseAuthSchProfile } from './util.js';
 
 const authSchProvider = process.env.AUTHSCH_PROVIDER || `https://auth.sch.bme.hu`;
@@ -55,7 +55,7 @@ export class Strategy extends PassportStrategy {
   }
 
   login(req: Request) {
-    const payload = {
+    const payload: StatePayload = {
       nonce: crypto.randomBytes(16).toString('hex'),
       timestamp: Date.now(),
       ip: req.ip,
@@ -83,13 +83,13 @@ export class Strategy extends PassportStrategy {
       return this.fail(401);
     }
     try {
-      const payload = jwt.verify(state, this.stateSecret) as string;
-      if (JSON.parse(payload).ip !== req.ip) {
-        console.error('CSRF validation failed!');
+      const payload = jwt.verify(state, this.stateSecret) as StatePayload;
+      if (payload.ip !== req.ip) {
+        console.error('CSRF validation failed: IP mismatch!');
         return this.fail(403);
       }
-    } catch {
-      console.error('CSRF validation failed!');
+    } catch (e) {
+      console.error('CSRF validation failed: invalid JWT!');
       return this.fail(403);
     }
 

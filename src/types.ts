@@ -44,15 +44,6 @@ export enum BmeUnitScope {
   BME_VBK_NEWBIE = 'BME_VBK_NEWBIE',
 }
 
-export type RawGroupMembership = {
-  id: number;
-  name: string;
-  status: 'körvezető' | 'tag' | 'öregtag';
-  title: string[];
-  start: string;
-  end?: string;
-};
-
 export type RawAuthSchProfile = {
   name: string;
   family_name: string;
@@ -124,4 +115,10 @@ export type AuthSchProfile = {
     groupName: string;
     entrantType: 'AB' | 'KB';
   }[];
+};
+
+export type StatePayload = {
+  nonce: string;
+  timestamp: number;
+  ip?: string;
 };
