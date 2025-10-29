@@ -58,46 +58,51 @@ export class Strategy extends PassportStrategy {
   }
 
   async callback(req: Request) {
-    const authorizationCode = req.query.code;
-    const error = req.query.error;
-    if (error) {
-      console.error(req.query.error_description ?? error);
-      return this.fail(401);
-    }
-    if (!authorizationCode) {
-      console.error('No authorization code received from AuthSch!');
-      return this.fail(401);
-    }
-
-    const base64 = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
-    const tokenResponse = await axios.post<string, AxiosResponse<AuthSchTokenResponse>>(
-      this.tokenEndpoint,
-      `grant_type=authorization_code&code=${authorizationCode}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`,
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          Authorization: `Basic ${base64}`,
-        },
+    try {
+      const authorizationCode = req.query.code;
+      const error = req.query.error;
+      if (error) {
+        console.error(req.query.error_description ?? error);
+        return this.fail(401);
       }
-    );
-    if (!tokenResponse.data) {
-      console.error('Fetching access token from AuthSch failed: ', tokenResponse.status);
-      return this.fail(401);
-    }
+      if (!authorizationCode) {
+        console.error('No authorization code received from AuthSch!');
+        return this.fail(401);
+      }
 
-    const profileData = (
-      await axios.get<RawAuthSchProfile>(this.profileEndpoint, {
-        headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
-      })
-    ).data;
-    if (!profileData) {
-      console.error('Fetching user profile from AuthSch failed: ', tokenResponse.status);
-      return this.fail(401);
+      const base64 = Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64');
+      const tokenResponse = await axios.post<string, AxiosResponse<AuthSchTokenResponse>>(
+        this.tokenEndpoint,
+        `grant_type=authorization_code&code=${authorizationCode}${this.redirectUri ? `&redirect_uri=${this.redirectUri}` : ''}`,
+        {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            Authorization: `Basic ${base64}`,
+          },
+        }
+      );
+      if (!tokenResponse.data) {
+        console.error('Fetching access token from AuthSch failed: ', tokenResponse.status);
+        return this.fail(401);
+      }
+
+      const profileData = (
+        await axios.get<RawAuthSchProfile>(this.profileEndpoint, {
+          headers: { Authorization: `Bearer ${tokenResponse.data.access_token}` },
+        })
+      ).data;
+      if (!profileData) {
+        console.error('Fetching user profile from AuthSch failed: ', tokenResponse.status);
+        return this.fail(401);
+      }
+      const validatedUser = await this.validate(parseAuthSchProfile(profileData));
+      if (!validatedUser) {
+        return this.fail(401);
+      }
+      this.success(validatedUser);
+    } catch (e) {
+      console.error(e);
+      this.fail(401);
     }
-    const validatedUser = await this.validate(parseAuthSchProfile(profileData));
-    if (!validatedUser) {
-      return this.fail(401);
-    }
-    this.success(validatedUser);
   }
 }
