@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios, { AxiosError, AxiosResponse } from 'axios';
 import { Request } from 'express';
 import { Strategy as PassportStrategy } from 'passport-strategy';
 
@@ -101,7 +101,12 @@ export class Strategy extends PassportStrategy {
       }
       this.success(validatedUser);
     } catch (e) {
-      console.error(e);
+      if (e instanceof AxiosError) {
+        console.error(e.status, e.message);
+        console.error(req.url, req.params, req.query);
+      } else {
+        console.error(e);
+      }
       this.fail(401);
     }
   }
