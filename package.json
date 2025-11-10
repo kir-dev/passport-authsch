@@ -1,6 +1,6 @@
 {
   "name": "@kir-dev/passport-authsch",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "Passport.js Strategy for AuthSCH",
   "author": "Sámuel Fekete <feketesamu@gmail.com>",
   "keywords": [
