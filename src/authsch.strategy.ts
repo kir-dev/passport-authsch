@@ -58,6 +58,7 @@ export class Strategy extends PassportStrategy {
   }
 
   async callback(req: Request) {
+    let debugTokenReceived = false;
     try {
       const authorizationCode = req.query.code;
       const error = req.query.error;
@@ -85,6 +86,7 @@ export class Strategy extends PassportStrategy {
         console.error('Fetching access token from AuthSch failed: ', tokenResponse.status);
         return this.fail(401);
       }
+      debugTokenReceived = true;
 
       const profileData = (
         await axios.get<RawAuthSchProfile>(this.profileEndpoint, {
@@ -102,7 +104,9 @@ export class Strategy extends PassportStrategy {
       this.success(validatedUser);
     } catch (e) {
       if (e instanceof AxiosError) {
-        console.error(e.status, e.message);
+        console.error('Token received: ', debugTokenReceived);
+        console.error(e.status, e.message, e.cause);
+        console.error(e);
         console.error(req.url, req.params, req.query);
       } else {
         console.error(e);
